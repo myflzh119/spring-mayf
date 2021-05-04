@@ -111,11 +111,17 @@ public class InjectionMetadata {
 	}
 
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+		/**
+		 * 为什么使用checkedElements
+		 */
 		Collection<InjectedElement> checkedElements = this.checkedElements;
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
 			for (InjectedElement element : elementsToIterate) {
+				/**
+				 * 依赖注入02
+				 */
 				element.inject(target, beanName, pvs);
 			}
 		}

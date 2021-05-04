@@ -161,19 +161,25 @@ public class HandlerMethodMappingTests {
 	public void detectHandlerMethodsInAncestorContexts() {
 		StaticApplicationContext cxt = new StaticApplicationContext();
 		cxt.registerSingleton("myHandler", MyHandler.class);
+		StaticApplicationContext cxtChild = new StaticApplicationContext(cxt);
 
 		AbstractHandlerMethodMapping<String> mapping1 = new MyHandlerMethodMapping();
-		mapping1.setApplicationContext(new StaticApplicationContext(cxt));
+		mapping1.setApplicationContext(cxtChild);
 		mapping1.afterPropertiesSet();
-
 		assertThat(mapping1.getHandlerMethods().size()).isEqualTo(0);
+//		System.out.println(mapping1.getHandlerMethods().size());
 
 		AbstractHandlerMethodMapping<String> mapping2 = new MyHandlerMethodMapping();
+		/**
+		 * 启用父容器获取
+		 */
 		mapping2.setDetectHandlerMethodsInAncestorContexts(true);
 		mapping2.setApplicationContext(new StaticApplicationContext(cxt));
 		mapping2.afterPropertiesSet();
 
 		assertThat(mapping2.getHandlerMethods().size()).isEqualTo(2);
+//		System.out.println(mapping2.getHandlerMethods().size());
+		System.out.println(cxt.getBean("myHandler"));
 	}
 
 	@Test

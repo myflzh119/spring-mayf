@@ -236,6 +236,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
+		/**
+		 * 循环依赖情况下提前完成代理
+		 */
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
 		this.earlyProxyReferences.put(cacheKey, bean);
 		return wrapIfNecessary(bean, beanName, cacheKey);
@@ -246,9 +249,17 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
 		if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+			/**
+			 * advisedBeans用于存放不再需要进行代理的Bean
+			 */
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			/**
+			 * isInfrastructureClass(beanClass)
+			 * 1.判断beanClass将来是否要被代理;2判断beanClass是否已经被代理
+			 *   排除几个特殊的类型不能被代理
+			 */
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
@@ -258,6 +269,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Create proxy here if we have a custom TargetSource.
 		// Suppresses unnecessary default instantiation of the target bean:
 		// The TargetSource will handle target instances in a custom fashion.
+		/**
+		 * 获取封装当前bean的TargetSource对象
+		 * 存在该TargetSource对象的话，判断是否应用切面逻辑并生成代理对象进行缓存
+		 */
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
 		if (targetSource != null) {
 			if (StringUtils.hasLength(beanName)) {
@@ -286,6 +301,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			/**
+			 * 循环依赖的AOP操作，防止重复代理
+			 */
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
@@ -326,24 +344,41 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		/**
+		 * 判断Bean是能够被代理或是否已经被代理
+		 */
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		/**
+		 * 内部基础类，不需要代理
+		 *   如果一个bean继承自Advice、Pointcut、Advisor、AopInfrastructureBean
+		 *   或者 带有@Aspect注解，或被Ajc（AspectJ编译器）编译都会被认定为内部基础设置类
+		 */
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		/**
+		 * 获取所有适用于当前Bean的Advisor
+		 */
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			/**
+			 * 创建代理对象
+			 */
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
 
+		/**
+		 * 已代理也放入
+		 */
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
 		return bean;
 	}
@@ -463,6 +498,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (targetClassLoader instanceof SmartClassLoader && targetClassLoader != beanClass.getClassLoader()) {
 			targetClassLoader = ((SmartClassLoader) targetClassLoader).getOriginalClassLoader();
 		}
+		/**
+		 * 产生代理对象
+		 */
 		return proxyFactory.getProxy(targetClassLoader);
 	}
 

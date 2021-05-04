@@ -122,6 +122,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 	@Override
 	public List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory aspectInstanceFactory) {
+		/**
+		 * 从BeanFactory中获取到Aspect的类对象
+		 */
 		Class<?> aspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();
 		String aspectName = aspectInstanceFactory.getAspectMetadata().getAspectName();
 		validate(aspectClass);
@@ -141,6 +144,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 			// discovered via reflection in order to support reliable advice ordering across JVM launches.
 			// Specifically, a value of 0 aligns with the default value used in
 			// AspectJPrecedenceComparator.getAspectDeclarationOrder(Advisor).
+			/**
+			 * 关键代码,获取到Advisor（如果有的话）
+			 */
 			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, 0, aspectName);
 			if (advisor != null) {
 				advisors.add(advisor);
@@ -166,6 +172,10 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 	private List<Method> getAdvisorMethods(Class<?> aspectClass) {
 		List<Method> methods = new ArrayList<>();
+		/**
+		 * 筛选掉一些特殊的对象
+		 * PointCut
+		 */
 		ReflectionUtils.doWithMethods(aspectClass, methods::add, adviceMethodFilter);
 		if (methods.size() > 1) {
 			methods.sort(adviceMethodComparator);
@@ -204,12 +214,19 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());
 
+		/**
+		 * 封装ExpressionPointcut对象
+		 */
 		AspectJExpressionPointcut expressionPointcut = getPointcut(
 				candidateAdviceMethod, aspectInstanceFactory.getAspectMetadata().getAspectClass());
 		if (expressionPointcut == null) {
 			return null;
 		}
 
+		/**
+		 * 如果存在pointcut,将其封装为一个Advisor对象
+		 * 在构造方法里触发构造通知对象
+		 */
 		return new InstantiationModelAwarePointcutAdvisorImpl(expressionPointcut, candidateAdviceMethod,
 				this, aspectInstanceFactory, declarationOrderInAspect, aspectName);
 	}
@@ -260,6 +277,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		AbstractAspectJAdvice springAdvice;
 
+		/**
+		 * 根据AspectJ的不同类型构造不同的Advice
+		 */
 		switch (aspectJAnnotation.getAnnotationType()) {
 			case AtPointcut:
 				if (logger.isDebugEnabled()) {
