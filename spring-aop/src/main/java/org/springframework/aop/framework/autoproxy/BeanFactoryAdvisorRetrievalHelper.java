@@ -70,6 +70,12 @@ public class BeanFactoryAdvisorRetrievalHelper {
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			/**
+			 * 获取BeanFactory中所有实现了Advisor接口的bean
+			 *   从beanDefinitionNames中获取
+			 * 	 什么时候放进去的?
+			 *   在子类的findCandidateAdvisors方法中build
+			 */
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
 			this.cachedAdvisorBeanNames = advisorNames;

@@ -259,6 +259,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object beanInstance;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		/**
+		 * 1.检查是否有手动注册的单例对象
+		 * 2.如果已经存在Bean，在此处取值==>循环依赖情况
+		 */
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -303,6 +307,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			if (!typeCheckOnly) {
+				/**
+				 * 重置mergedBeanDefinitions中BD的stale为true
+				 * 在下一个合并BD流程中重新生成BD
+				 * 老版本Spring中将BD从mergedBeanDefinitions中移除
+				 */
 				markBeanAsCreated(beanName);
 			}
 
@@ -313,7 +322,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					beanCreation.tag("beanType", requiredType::toString);
 				}
 				/**
-				 * 获取MergedBeanDefinition
+				 * 合并BD：03
+				 *   获取MergedBeanDefinition
 				 */
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
@@ -343,6 +353,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						try {
 							/**
 							 * 3 进入获取singleton-Bean逻辑
+							 * 该方法通过getSingleton进入后会在singletonsCurrentlyInCreation
+							 * 中存入一个beanName，后续其他方法创建Bean时会判断是否存在从而确认是否是
+							 * 依赖注入
 							 */
 							return createBean(beanName, mbd, args);
 						}
@@ -1349,6 +1362,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.
+
 		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
 		if (mbd != null && !mbd.stale) {
 			return mbd;
@@ -1429,6 +1443,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
+					/**
+					 * 父BD将自身clone
+					 * 以自己为模板，对子BD进行赋值
+					 */
 					mbd = new RootBeanDefinition(pbd);
 					mbd.overrideFrom(bd);
 				}
@@ -2119,6 +2137,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	static class BeanPostProcessorCache {
 
+		/**
+		 * 初始化处理器
+		 */
 		final List<InstantiationAwareBeanPostProcessor> instantiationAware = new ArrayList<>();
 
 		final List<SmartInstantiationAwareBeanPostProcessor> smartInstantiationAware = new ArrayList<>();

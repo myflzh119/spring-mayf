@@ -149,6 +149,9 @@ final class PostProcessorRegistrationDelegate {
 			 * 第一种策略
 			 * 	系统默认的
 			 * 	BeanDefinitionRegistryPostProcessor+PriorityOrdered
+			 *
+			 * 	合并BD：01==合并
+			 * 	处理父子关系的类
 			 */
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
@@ -232,6 +235,10 @@ final class PostProcessorRegistrationDelegate {
 			 * 执行所有BeanDefinitionRegistryPostProcessor处理器父类BeanFactoryPostProcessor的方法
 			 * 包括系统默认+add方法提供的
 			 * 在这里ConfigurationClassPostProcessor执行postProcessBeanFactory方法
+			 *
+			 *
+			 * BeanPostProcessor注册
+			 *   ImportAwareBeanPostPorcessor
 			 */
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			/**

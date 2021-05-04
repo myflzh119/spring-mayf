@@ -50,7 +50,7 @@ configure(allprojects) { project ->
 			dependency "com.google.code.findbugs:jsr305:3.0.2"
 
 			dependencySet(group: 'org.aspectj', version: '1.9.6') {
-				entry 'aspectjrt'
+//				entry 'aspectjrt'
 				entry 'aspectjtools'
 				entry 'aspectjweaver'
 			}
@@ -290,8 +290,10 @@ configure(allprojects) { project ->
 			cacheChangingModulesFor 0, "seconds"
 		}
 		repositories {
-			mavenCentral()
+			mavenLocal()
+			maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
 			maven { url "https://repo.spring.io/libs-spring-framework-build" }
+			mavenCentral()
 		}
 	}
 	configurations.all {
@@ -345,6 +347,8 @@ configure([rootProject] + javaProjects) { project ->
 	}
 
 	dependencies {
+		implementation group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.6'
+//		implementation group: 'org.aspectj', name: 'aspectjrt', version: '1.9.6'
 		implementation group: 'org.mybatis', name: 'mybatis', version: '3.5.6'
 		implementation group: 'org.mybatis', name: 'mybatis-spring', version: '2.0.6'
 		testCompile("org.junit.jupiter:junit-jupiter-api")
@@ -427,3 +431,31 @@ configure(rootProject) {
 		}
 	}
 }
+//
+//tasks.withType(JavaCompile) {
+//	// Try to turn them all off automatically
+//	options.compilerArgs << '-Xlint:none'
+//	options.compilerArgs << '-nowarn' // same as '-Xlint:none'
+//
+//	// Turn them off manually
+//	options.compilerArgs << '-Xlint:-auxiliaryclass'
+//	options.compilerArgs << '-Xlint:-cast'
+//	options.compilerArgs << '-Xlint:-classfile'
+//	options.compilerArgs << '-Xlint:-deprecation'
+//	options.compilerArgs << '-Xlint:-dep-ann'
+//	options.compilerArgs << '-Xlint:-divzero'
+//	options.compilerArgs << '-Xlint:-empty'
+//	options.compilerArgs << '-Xlint:-fallthrough'
+//	options.compilerArgs << '-Xlint:-finally'
+//	options.compilerArgs << '-Xlint:-options'
+//	options.compilerArgs << '-Xlint:-overloads'
+//	options.compilerArgs << '-Xlint:-overrides'
+//	options.compilerArgs << '-Xlint:-path'
+//	options.compilerArgs << '-Xlint:-processing'
+//	options.compilerArgs << '-Xlint:-rawtypes'
+//	options.compilerArgs << '-Xlint:-serial'
+//	options.compilerArgs << '-Xlint:-static'
+//	options.compilerArgs << '-Xlint:-try'
+//	options.compilerArgs << '-Xlint:-unchecked'
+//	options.compilerArgs << '-Xlint:-varargs'
+//}

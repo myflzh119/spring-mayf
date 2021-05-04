@@ -25,7 +25,6 @@ public class Test048 {
 	 *   5.aop代理
 	 * BeanFactory中的getBean方法==>公用方法，后续会循环引用
 	 */
-
 	@Test
 	public void test01(){
 		AnnotationConfigApplicationContext aca = new AnnotationConfigApplicationContext();
@@ -36,12 +35,16 @@ public class Test048 {
 
 		aca.refresh();
 
-		DepentService02 bean = aca.getBean(DepentService02.class);
-		System.out.println(bean);
+//		DepentService02 bean = aca.getBean(DepentService02.class);
+//		System.out.println(bean);
 		DepentService02 bean1 = (DepentService02) aca.getBean("service02");
-		System.out.println(bean1);
-		DepentService02 bean2 = (DepentService02) aca.getBean("getDepencyService02");
-		System.out.println(bean2);
+		System.out.println(bean1.getService());
+//		System.out.println(bean1);
+//		System.out.println(bean1.getService());
+//
+//		DepentService02 bean2 = (DepentService02) aca.getBean("getDepencyService02");
+//		System.out.println(bean2);
+//		System.out.println(bean2.getService());
 //		DepentService01 bean01 = (DepentService01) aca.getBean("depentService01");
 
 //		System.out.println(bean.getService01());

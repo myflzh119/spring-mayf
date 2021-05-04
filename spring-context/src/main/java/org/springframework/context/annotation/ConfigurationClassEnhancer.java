@@ -286,6 +286,9 @@ class ConfigurationClassEnhancer {
 			// Does the actual (non-CGLIB) superclass implement BeanFactoryAware?
 			// If so, call its setBeanFactory() method. If not, just exit.
 			if (BeanFactoryAware.class.isAssignableFrom(ClassUtils.getUserClass(obj.getClass().getSuperclass()))) {
+				/**
+				 * 配置类如果实现了BeanFactory，尝试去从中获取Bean
+				 */
 				return proxy.invokeSuper(obj, args);
 			}
 			return null;

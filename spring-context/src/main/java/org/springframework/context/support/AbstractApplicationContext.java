@@ -559,6 +559,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			/**
+			 * BeanPostProcessor注册
+			 *   ApplicationContextAwareProcessor
+			 *   ApplicationListenerDetector
+			 */
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -583,6 +588,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Register bean processors that intercept bean creation.
 				/**
 				 * 注册BeanPostProcessor
+				 *   BeanPostProcessorChecker
 				 */
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
